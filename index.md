@@ -9,15 +9,12 @@ title: Home
 </div>
 
 <div class="grid">
-{% for poem in collections.poems | reverse | slice: 0, 3 %}
+{% for poem in collections.poems %}
   <div class="card">
     <h2>
       <a href="{{ poem.url }}">{{ poem.data.title }}</a>
     </h2>
     <p>{{ poem.data.title }}</p>
   </div>
-{% endfor %}
-</div>
-
 {% endfor %}
 </div>
