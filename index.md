@@ -14,7 +14,8 @@ title: Home
     <h2>
       <a href="{{ poem.url }}">{{ poem.data.title }}</a>
     </h2>
-    <p>{{ poem.templateContent | striptags | truncate(120) }}</p>
+    <p>{{ poem.templateContent | striptags | truncate: 120 }}</p>
+
   </div>
 {% endfor %}
 </div>
