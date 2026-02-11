@@ -1,0 +1,17 @@
+---
+layout: layout.njk
+title: Books
+permalink: /books/
+---
+
+<h2>Books</h2>
+
+<div class="grid">
+{% for book in collections.books %}
+  <div class="card">
+    <h2>
+      <a href="{{ book.url }}">{{ book.data.title }}</a>
+    </h2>
+  </div>
+{% endfor %}
+</div>

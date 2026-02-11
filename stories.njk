@@ -1,0 +1,17 @@
+---
+layout: layout.njk
+title: Stories
+permalink: /stories/
+---
+
+<h2>Stories</h2>
+
+<div class="grid">
+{% for story in collections.stories %}
+  <div class="card">
+    <h2>
+      <a href="{{ story.url }}">{{ story.data.title }}</a>
+    </h2>
+  </div>
+{% endfor %}
+</div>
