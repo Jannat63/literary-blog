@@ -5,6 +5,9 @@ backend:
 media_folder: "images/uploads"
 public_folder: "/images/uploads"
 
+media_library:
+  name: uploadcare
+
 collections:
   - name: "poems"
     label: "Poems"
@@ -12,15 +15,9 @@ collections:
     create: true
     slug: "{{slug}}"
     fields:
-      - label: "Title"
-        name: "title"
-        widget: "string"
-      - label: "Publish Date"
-        name: "date"
-        widget: "datetime"
-      - label: "Body"
-        name: "body"
-        widget: "markdown"
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Publish Date", name: "date", widget: "datetime" }
+      - { label: "Body", name: "body", widget: "markdown" }
 
   - name: "stories"
     label: "Stories"
@@ -28,15 +25,9 @@ collections:
     create: true
     slug: "{{slug}}"
     fields:
-      - label: "Title"
-        name: "title"
-        widget: "string"
-      - label: "Publish Date"
-        name: "date"
-        widget: "datetime"
-      - label: "Body"
-        name: "body"
-        widget: "markdown"
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Publish Date", name: "date", widget: "datetime" }
+      - { label: "Body", name: "body", widget: "markdown" }
 
   - name: "books"
     label: "Books"
@@ -44,12 +35,6 @@ collections:
     create: true
     slug: "{{slug}}"
     fields:
-      - label: "Title"
-        name: "title"
-        widget: "string"
-      - label: "Publish Date"
-        name: "date"
-        widget: "datetime"
-      - label: "Description"
-        name: "body"
-        widget: "markdown"
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Publish Date", name: "date", widget: "datetime" }
+      - { label: "Description", name: "body", widget: "markdown" }
