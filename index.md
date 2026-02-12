@@ -18,22 +18,53 @@ title: Home
   </div>
 </section>
 
+<section class="latest">
+  <div class="container">
 
-<section class="latest container">
-  <h2 class="section-title">Latest Posts</h2>
+    <h2 class="section-title">Latest Writings</h2>
 
-  <div class="post-grid">
-    {% for post in collections.poems | reverse | slice: 0,6 %}
+    {% assign posts = collections.poems | reverse %}
+
+    <!-- Featured Post -->
+    {% for post in posts limit:1 %}
+    <div class="featured-post">
+      <div class="featured-image"></div>
+      <div class="featured-content">
+        <span class="category-tag">Poem</span>
+        <h2>
+          <a href="{{ post.url }}">{{ post.data.title }}</a>
+        </h2>
+        <p class="meta">
+          {{ post.date | date: "%B %d, %Y" }} · 3 min read
+        </p>
+        <p class="excerpt">
+          {{ post.templateContent | truncate: 180 }}
+        </p>
+        <a class="read-more" href="{{ post.url }}">Read Full Story →</a>
+      </div>
+    </div>
+    {% endfor %}
+
+    <!-- Grid Posts -->
+    <div class="post-grid">
+      {% for post in posts offset:1 limit:3 %}
       <div class="post-card">
+        <div class="card-image"></div>
+        <span class="category-tag small">Poem</span>
         <h3>
           <a href="{{ post.url }}">{{ post.data.title }}</a>
         </h3>
-        <p class="post-date">{{ post.date | date: "%B %d, %Y" }}</p>
-        <p class="excerpt">
-          {{ post.templateContent | truncate: 140 }}
+        <p class="meta">
+          {{ post.date | date: "%B %d, %Y" }} · 2 min read
         </p>
-        <a href="{{ post.url }}" class="read-more">Read More →</a>
+        <p class="excerpt">
+          {{ post.templateContent | truncate: 120 }}
+        </p>
+        <a class="read-more" href="{{ post.url }}">Read More →</a>
       </div>
-    {% endfor %}
+      {% endfor %}
+    </div>
+
   </div>
 </section>
+
