@@ -10,9 +10,11 @@
 
 <body>
 
-<header class="navbar">
-  <div class="container nav-inner">
-    <h1 class="logo">My Literary Space</h1>
+<header class="site-header">
+  <div class="header-inner">
+    <h1 class="logo">
+      <a href="/">My Literary Space</a>
+    </h1>
     <nav>
       <a href="/">Home</a>
       <a href="/poems/">Poems</a>
@@ -22,12 +24,12 @@
   </div>
 </header>
 
-<main>
+<main class="main-content">
   {{ content | safe }}
 </main>
 
-<footer class="footer">
-  <div class="container">
+<footer class="site-footer">
+  <div class="footer-inner">
     <p>© 2026 My Literary Space. Crafted with words.</p>
   </div>
 </footer>
