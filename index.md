@@ -18,49 +18,43 @@ title: Home
   </div>
 </section>
 
-<section class="latest">
-  <div class="container">
 
-    <h2 class="section-title">Latest Writings</h2>
+<section class="editorial">
+  <div class="editorial-grid">
 
     {% assign posts = collections.poems | reverse %}
 
-    <!-- Featured Post -->
+    <!-- FEATURED -->
     {% for post in posts limit:1 %}
-    <div class="featured-post">
-      <div class="featured-image"></div>
-      <div class="featured-content">
-        <span class="category-tag">Poem</span>
+    <div class="featured">
+      <div class="overlay">
+        <span class="category">Poem</span>
         <h2>
           <a href="{{ post.url }}">{{ post.data.title }}</a>
         </h2>
         <p class="meta">
           {{ post.date | date: "%B %d, %Y" }} · 3 min read
         </p>
-        <p class="excerpt">
-          {{ post.templateContent | truncate: 180 }}
-        </p>
-        <a class="read-more" href="{{ post.url }}">Read Full Story →</a>
+        <a class="btn" href="{{ post.url }}">Read Story →</a>
       </div>
     </div>
     {% endfor %}
 
-    <!-- Grid Posts -->
-    <div class="post-grid">
-      {% for post in posts offset:1 limit:3 %}
-      <div class="post-card">
+    <!-- SMALL POSTS -->
+    <div class="side-posts">
+      {% for post in posts offset:1 limit:4 %}
+      <div class="card">
         <div class="card-image"></div>
-        <span class="category-tag small">Poem</span>
-        <h3>
-          <a href="{{ post.url }}">{{ post.data.title }}</a>
-        </h3>
-        <p class="meta">
-          {{ post.date | date: "%B %d, %Y" }} · 2 min read
-        </p>
-        <p class="excerpt">
-          {{ post.templateContent | truncate: 120 }}
-        </p>
-        <a class="read-more" href="{{ post.url }}">Read More →</a>
+        <div class="card-content">
+          <span class="category small">Poem</span>
+          <h3>
+            <a href="{{ post.url }}">{{ post.data.title }}</a>
+          </h3>
+          <p class="meta">
+            {{ post.date | date: "%B %d, %Y" }}
+          </p>
+          <a class="read-link" href="{{ post.url }}">Read →</a>
+        </div>
       </div>
       {% endfor %}
     </div>
