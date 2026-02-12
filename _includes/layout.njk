@@ -2,29 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ title }} | My Literary Space</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
-<header class="site-header">
-  <div class="header-inner">
-    <a href="/" class="logo">My Literary Space</a>
-    <nav class="nav">
-  <a href="/poems/">Poems</a>
-  <a href="/stories/">Stories</a>
-  <a href="/books/">Books</a>
-</nav>
+<header class="navbar">
+  <div class="container nav-inner">
+    <h1 class="logo">My Literary Space</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/poems/">Poems</a>
+      <a href="/stories/">Stories</a>
+      <a href="/books/">Books</a>
+    </nav>
   </div>
 </header>
 
-<main class="main-content">
+<main>
   {{ content | safe }}
 </main>
 
-<footer class="site-footer">
-  <p>© 2026 My Literary Space</p>
+<footer class="footer">
+  <div class="container">
+    <p>© 2026 My Literary Space. Crafted with words.</p>
+  </div>
 </footer>
 
 </body>
