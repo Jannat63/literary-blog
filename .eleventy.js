@@ -48,14 +48,15 @@ module.exports = function (eleventyConfig) {
      Eleventy Core Config
   ------------------------------ */
   return {
-    dir: {
-      input: ".",
-      includes: "_includes",
-      output: "_site"
-    },
-    templateFormats: ["md", "njk", "html"],
-    markdownTemplateEngine: "njk",
-    htmlTemplateEngine: "njk",
-    dataTemplateEngine: "njk"
-  };
+  dir: {
+    input: "content",
+    includes: "../_includes",
+    output: "_site"
+  },
+  templateFormats: ["md", "njk", "html"],
+  markdownTemplateEngine: "njk",
+  htmlTemplateEngine: "njk",
+  dataTemplateEngine: "njk"
+};
+
 };
