@@ -1,14 +1,18 @@
 <section class="editorial-section">
   <h2 class="section-title">Latest Books</h2>
 
-  {% set posts = collections.books | reverse %}
+  {% set posts = collections.books %}
 
-  {% if posts and posts.length > 0 %}
+  <p>Total Books: {{ posts.length }}</p>
+
+  {% if posts.length > 0 %}
   <div class="editorial-grid">
 
-    <!-- Featured Book -->
     {% set featured = posts[0] %}
-    <div class="featured" style="background-image: url('{{ featured.data.image }}')">
+    <div class="featured"
+      {% if featured.data.image %}
+      style="background-image: url('{{ featured.data.image }}')"
+      {% endif %}>
       <div class="overlay">
         <h3>
           <a href="{{ featured.url }}">{{ featured.data.title }}</a>
@@ -20,12 +24,14 @@
       </div>
     </div>
 
-    <!-- Side Books -->
     <div class="side-posts">
       {% for post in posts.slice(1, 5) %}
       <div class="card">
         <div class="card-image"
-             style="background-image: url('{{ post.data.image }}')"></div>
+          {% if post.data.image %}
+          style="background-image: url('{{ post.data.image }}')"
+          {% endif %}></div>
+
         <div class="card-content">
           <h4>
             <a href="{{ post.url }}">{{ post.data.title }}</a>
