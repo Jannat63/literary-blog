@@ -1,31 +1,52 @@
+const { DateTime } = require("luxon");
+
 module.exports = function (eleventyConfig) {
 
-  // Static folders
+  /* -----------------------------
+     Custom Date Filter (FIXES ERROR)
+  ------------------------------ */
+  eleventyConfig.addFilter("date", function (value, format = "MMMM dd, yyyy") {
+    if (!value) return "";
+    return DateTime.fromJSDate(value, { zone: "utc" }).toFormat(format);
+  });
+
+  /* -----------------------------
+     Static / Passthrough Files
+  ------------------------------ */
   eleventyConfig.addPassthroughCopy("admin");
   eleventyConfig.addPassthroughCopy("images");
   eleventyConfig.addPassthroughCopy("style.css");
 
-  // Poems
+  /* -----------------------------
+     Poems Collection
+  ------------------------------ */
   eleventyConfig.addCollection("poems", function (collectionApi) {
     return collectionApi
       .getFilteredByGlob("content/poems/*.md")
       .sort((a, b) => b.date - a.date);
   });
 
-  // Stories
+  /* -----------------------------
+     Stories Collection
+  ------------------------------ */
   eleventyConfig.addCollection("stories", function (collectionApi) {
     return collectionApi
       .getFilteredByGlob("content/stories/*.md")
       .sort((a, b) => b.date - a.date);
   });
 
-  // Books
+  /* -----------------------------
+     Books Collection
+  ------------------------------ */
   eleventyConfig.addCollection("books", function (collectionApi) {
     return collectionApi
       .getFilteredByGlob("content/books/*.md")
       .sort((a, b) => b.date - a.date);
   });
 
+  /* -----------------------------
+     Eleventy Core Config
+  ------------------------------ */
   return {
     dir: {
       input: ".",

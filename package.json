@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-"scripts": {
-  "start": "node ./node_modules/@11ty/eleventy/cmd.cjs --serve",
-  "build": "node ./node_modules/@11ty/eleventy/cmd.cjs"
-},
-
+  "scripts": {
+    "start": "node ./node_modules/@11ty/eleventy/cmd.cjs --serve",
+    "build": "node ./node_modules/@11ty/eleventy/cmd.cjs"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Jannat63/literary-blog.git"
@@ -22,5 +21,8 @@
   "homepage": "https://github.com/Jannat63/literary-blog#readme",
   "devDependencies": {
     "@11ty/eleventy": "^3.1.2"
+  },
+  "dependencies": {
+    "luxon": "^3.7.2"
   }
 }
