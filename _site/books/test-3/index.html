@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>test 3 — My Literary Space</title>
+  <meta name="description" content="A personal literary space for poems, stories and books." />
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-rule">
+        <span>✦ ✦ ✦</span>
+      </div>
+      <h1 class="site-title"><a href="/" style="text-decoration:none;color:inherit;">My Literary Space</a></h1>
+      <p class="site-subtitle">Verses, Tales &amp; Ruminations from the Written Word</p>
+      <div class="header-rule" style="margin-top:1.2rem;margin-bottom:0;">
+        <span>❧ ❧ ❧</span>
+      </div>
+    </div>
+    <nav class="site-nav" aria-label="Main navigation">
+      <div class="nav-inner">
+        <a href="/" >Home</a>
+        <a href="/poems/" >Poems</a>
+        <a href="/stories/" >Stories</a>
+        <a href="/books/" class="active">Books</a>
+        <a href="/about/" >About</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="page-wrapper">
+      <p>test 3</p>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-ornament">✦ ❦ ✦</div>
+      <p class="footer-text">
+        Est. MMXXIV &nbsp;·&nbsp; My Literary Space &nbsp;·&nbsp; All rights reserved
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>

@@ -1,62 +1,41 @@
 const { DateTime } = require("luxon");
 
-module.exports = function (eleventyConfig) {
+module.exports = function(eleventyConfig) {
 
-  /* -----------------------------
-     Custom Date Filter (FIXES ERROR)
-  ------------------------------ */
-  eleventyConfig.addFilter("date", function (value, format = "MMMM dd, yyyy") {
-    if (!value) return "";
-    return DateTime.fromJSDate(value, { zone: "utc" }).toFormat(format);
-  });
-
-  /* -----------------------------
-     Static / Passthrough Files
-  ------------------------------ */
+  eleventyConfig.addPassthroughCopy("style.css");
   eleventyConfig.addPassthroughCopy("admin");
   eleventyConfig.addPassthroughCopy("images");
-  eleventyConfig.addPassthroughCopy("style.css");
 
-  /* -----------------------------
-     Poems Collection
-  ------------------------------ */
-  eleventyConfig.addCollection("poems", function (collectionApi) {
-    return collectionApi
-      .getFilteredByGlob("content/poems/*.md")
-      .sort((a, b) => b.date - a.date);
+  eleventyConfig.addFilter("dateDisplay", (dateObj) => {
+    return DateTime.fromJSDate(dateObj, { zone: "utc" }).toFormat("dd LLLL yyyy");
   });
 
-  /* -----------------------------
-     Stories Collection
-  ------------------------------ */
-  eleventyConfig.addCollection("stories", function (collectionApi) {
-    return collectionApi
-      .getFilteredByGlob("content/stories/*.md")
-      .sort((a, b) => b.date - a.date);
+  eleventyConfig.addFilter("dateISO", (dateObj) => {
+    return DateTime.fromJSDate(dateObj, { zone: "utc" }).toISO();
   });
 
-  /* -----------------------------
-     Books Collection
-  ------------------------------ */
-  eleventyConfig.addCollection("books", function (collectionApi) {
-    return collectionApi
-      .getFilteredByGlob("content/books/*.md")
-      .sort((a, b) => b.date - a.date);
+  eleventyConfig.addFilter("first", (arr, n) => arr.slice(0, n));
+
+  eleventyConfig.addCollection("poems", function(collectionApi) {
+    return collectionApi.getFilteredByTag("poems").sort((a, b) => a.date - b.date);
   });
 
-  /* -----------------------------
-     Eleventy Core Config
-  ------------------------------ */
+  eleventyConfig.addCollection("stories", function(collectionApi) {
+    return collectionApi.getFilteredByTag("stories").sort((a, b) => a.date - b.date);
+  });
+
+  eleventyConfig.addCollection("books", function(collectionApi) {
+    return collectionApi.getFilteredByTag("books").sort((a, b) => a.date - b.date);
+  });
+
   return {
-  dir: {
-    input: "content",
-    includes: "../_includes",
-    output: "_site"
-  },
-  templateFormats: ["md", "njk", "html"],
-  markdownTemplateEngine: "njk",
-  htmlTemplateEngine: "njk",
-  dataTemplateEngine: "njk"
-};
-
+    dir: {
+      input: ".",
+      includes: "_includes",
+      output: "_site"
+    },
+    templateFormats: ["njk", "md", "html"],
+    markdownTemplateEngine: "njk",
+    htmlTemplateEngine: "njk"
+  };
 };
