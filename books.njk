@@ -4,14 +4,23 @@ title: Books
 permalink: /books/
 ---
 
-<h2>Books</h2>
+<h2 class="section-heading reveal">Books</h2>
+<div class="section-rule reveal"><span>📚</span></div>
 
-<div class="grid">
-{% for book in collections.books %}
-  <div class="card">
-    <h2>
-      <a href="{{ book.url }}">{{ book.data.title }}</a>
-    </h2>
+{% if collections.books.length %}
+  <div class="books-grid">
+    {% for book in collections.books | reverse %}
+      <a href="{{ book.url }}" class="book-card reveal">
+        <div class="book-spine">
+          <span class="book-spine-title">{{ book.data.title }}</span>
+        </div>
+        <div class="book-meta-title">{{ book.data.title }}</div>
+        {% if book.data.author %}
+          <div class="book-meta-author">{{ book.data.author }}</div>
+        {% endif %}
+      </a>
+    {% endfor %}
   </div>
-{% endfor %}
-</div>
+{% else %}
+  <p class="empty-state">No books have been shelved yet. The library awaits its volumes.</p>
+{% endif %}

@@ -12,9 +12,10 @@ collections:
     create: true
     slug: "{{slug}}"
     fields:
+      - { label: "Layout", name: "layout", widget: "hidden", default: "post-layout.njk" }
       - { label: "Title", name: "title", widget: "string" }
-      - { label: "Publish Date", name: "date", widget: "datetime" }
-      - { label: "Featured Image", name: "image", widget: "image", required: false }
+      - { label: "Date", name: "date", widget: "datetime" }
+      - { label: "Tags", name: "tags", widget: "hidden", default: ["poems"] }
       - { label: "Body", name: "body", widget: "markdown" }
 
   - name: "stories"
@@ -23,9 +24,11 @@ collections:
     create: true
     slug: "{{slug}}"
     fields:
+      - { label: "Layout", name: "layout", widget: "hidden", default: "post-layout.njk" }
       - { label: "Title", name: "title", widget: "string" }
-      - { label: "Publish Date", name: "date", widget: "datetime" }
-      - { label: "Featured Image", name: "image", widget: "image", required: false }
+      - { label: "Date", name: "date", widget: "datetime" }
+      - { label: "Tags", name: "tags", widget: "hidden", default: ["stories"] }
+      - { label: "Excerpt", name: "excerpt", widget: "text", required: false }
       - { label: "Body", name: "body", widget: "markdown" }
 
   - name: "books"
@@ -34,7 +37,11 @@ collections:
     create: true
     slug: "{{slug}}"
     fields:
+      - { label: "Layout", name: "layout", widget: "hidden", default: "post-layout.njk" }
       - { label: "Title", name: "title", widget: "string" }
-      - { label: "Publish Date", name: "date", widget: "datetime" }
-      - { label: "Cover Image", name: "image", widget: "image", required: false }
-      - { label: "Description", name: "body", widget: "markdown" }
+      - { label: "Date", name: "date", widget: "datetime" }
+      - { label: "Tags", name: "tags", widget: "hidden", default: ["books"] }
+      - { label: "Author", name: "author", widget: "string", required: false }
+      - { label: "Genre", name: "genre", widget: "string", required: false }
+      - { label: "Excerpt", name: "excerpt", widget: "text", required: false }
+      - { label: "Body", name: "body", widget: "markdown" }

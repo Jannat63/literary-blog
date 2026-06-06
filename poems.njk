@@ -4,12 +4,20 @@ title: Poems
 permalink: /poems/
 ---
 
-<h2>Poems</h2>
+<h2 class="section-heading reveal">Poems</h2>
+<div class="section-rule reveal"><span>🪶</span></div>
 
-<ul>
-{% for poem in collections.poems %}
-  <li>
-    <a href="{{ poem.url }}">{{ poem.data.title }}</a>
-  </li>
-{% endfor %}
-</ul>
+{% if collections.poems.length %}
+  <ul class="poems-list reveal">
+    {% for poem in collections.poems | reverse %}
+      <li>
+        <a href="{{ poem.url }}">
+          <span class="poem-list-title">{{ poem.data.title }}</span>
+          <span class="poem-list-date">{{ poem.date | dateDisplay }}</span>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="empty-state">No poems have been written yet. The page awaits the quill.</p>
+{% endif %}

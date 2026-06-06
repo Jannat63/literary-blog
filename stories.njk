@@ -4,14 +4,22 @@ title: Stories
 permalink: /stories/
 ---
 
-<h2>Stories</h2>
+<h2 class="section-heading reveal">Stories</h2>
+<div class="section-rule reveal"><span>📜</span></div>
 
-<div class="grid">
-{% for story in collections.stories %}
-  <div class="card">
-    <h2>
-      <a href="{{ story.url }}">{{ story.data.title }}</a>
-    </h2>
+{% if collections.stories.length %}
+  <div class="listing-grid">
+    {% for story in collections.stories | reverse %}
+      <a href="{{ story.url }}" class="listing-card reveal">
+        <div class="card-tag">Short Story</div>
+        <h3 class="card-title">{{ story.data.title }}</h3>
+        {% if story.data.excerpt %}
+          <p class="card-excerpt">{{ story.data.excerpt }}</p>
+        {% endif %}
+        <span class="card-date">{{ story.date | dateDisplay }}</span>
+      </a>
+    {% endfor %}
   </div>
-{% endfor %}
-</div>
+{% else %}
+  <p class="empty-state">No stories have been penned yet. The inkwell is full and waiting.</p>
+{% endif %}

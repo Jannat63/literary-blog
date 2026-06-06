@@ -1,28 +1,14 @@
 {
   "name": "literary-blog",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A personal literary blog — poems, stories and book reviews",
   "scripts": {
-    "start": "node ./node_modules/@11ty/eleventy/cmd.cjs --serve",
-    "build": "node ./node_modules/@11ty/eleventy/cmd.cjs"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Jannat63/literary-blog.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/Jannat63/literary-blog/issues"
-  },
-  "homepage": "https://github.com/Jannat63/literary-blog#readme",
-  "devDependencies": {
-    "@11ty/eleventy": "^3.1.2"
+    "start": "eleventy --serve",
+    "build": "eleventy",
+    "dev": "eleventy --serve --watch"
   },
   "dependencies": {
-    "luxon": "^3.7.2"
+    "@11ty/eleventy": "^2.0.1",
+    "luxon": "^3.4.4"
   }
 }

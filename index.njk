@@ -1,0 +1,30 @@
+---
+layout: layout.njk
+title: Home
+description: A personal literary space for poems, short stories and books.
+---
+
+<div class="hero-quote reveal">
+  <p>
+    "A reader lives a thousand lives before he dies. The man who never reads lives only one."
+  </p>
+  <cite>— George R.R. Martin</cite>
+</div>
+
+<h2 class="section-heading reveal">The Collection</h2>
+<div class="section-rule reveal"><span>⸻</span></div>
+
+<div class="home-sections">
+  {% include "sections/latest-poems.njk" %}
+  {% include "sections/latest-stories.njk" %}
+  {% include "sections/latest-books.njk" %}
+</div>
+
+<div class="text-center reveal" style="margin-top:3rem;padding:2rem;border-top:1px solid var(--border);">
+  <p style="font-family:'IM Fell English',serif;font-style:italic;color:var(--ink-faded);font-size:1.05rem;">
+    "Words are, in my not-so-humble opinion, our most inexhaustible source of magic."
+  </p>
+  <p style="font-size:0.85rem;color:var(--sepia);margin-top:0.5rem;font-family:'IM Fell English SC',serif;letter-spacing:0.1em;">
+    — Albus Dumbledore
+  </p>
+</div>
