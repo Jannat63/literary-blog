@@ -7,17 +7,47 @@ permalink: /poems/
 <h2 class="section-heading reveal">Poems</h2>
 <div class="section-rule reveal"><span>🪶</span></div>
 
-{% if collections.poems.length %}
-  <ul class="poems-list reveal">
-    {% for poem in collections.poems | reverse %}
-      <li>
-        <a href="{{ poem.url }}">
-          <span class="poem-list-title">{{ poem.data.title }}</span>
-          <span class="poem-list-date">{{ poem.date | dateDisplay }}</span>
-        </a>
-      </li>
-    {% endfor %}
-  </ul>
-{% else %}
-  <p class="empty-state">No poems have been written yet. The page awaits the quill.</p>
-{% endif %}
+<div id="poems-container">
+  <div class="loading-state"><div class="spinner-small"></div>Loading from the archive…</div>
+</div>
+
+<script>
+(function(){
+  var apiUrl = getApiUrl();
+  var container = document.getElementById('poems-container');
+
+  if (!apiUrl) {
+    container.innerHTML = '<p class="empty-state">No database connected.</p>';
+    return;
+  }
+
+  var cached = getCached('list_Poems');
+  if (cached) { render(cached); return; }
+
+  fetch(apiUrl+'?action=list&sheet=Poems')
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      var data = j.data || [];
+      setCached('list_Poems', data);
+      render(data);
+    })
+    .catch(function(){ container.innerHTML='<p class="empty-state">Could not load poems.</p>'; });
+
+  function render(rows) {
+    var published = rows.filter(function(p){ return p.status!=='draft'; }).reverse();
+    if (!published.length) {
+      container.innerHTML='<p class="empty-state">No poems have been written yet. The page awaits the quill.</p>';
+      return;
+    }
+    container.innerHTML = '<ul class="poems-list">'+
+      published.map(function(p){
+        return '<li><a href="#" data-post-id="'+esc(p.id)+'" data-post-sheet="Poems">'+
+          '<span class="poem-list-title">'+esc(p.title)+'</span>'+
+          '<span class="poem-list-date">'+esc(p.date)+'</span>'+
+          '</a></li>';
+      }).join('')+
+    '</ul>';
+    attachPostLinks(container);
+  }
+})();
+</script>

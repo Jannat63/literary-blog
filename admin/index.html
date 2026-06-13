@@ -1,12 +1,794 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Content Manager — My Literary Space</title>
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin — My Literary Space</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=IM+Fell+English:ital@0;1&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --p:#f5ecd7;--pd:#e8d9bb;--ink:#1a1208;--il:#3d2b10;--if:#6b4e2a;
+  --s:#8b6340;--rust:#7a2e12;--gold:#b8860b;--gl:#d4a843;--cream:#faf6ee;
+  --green:#2d6a4f;--red:#8b1a1a;--border:#c4975a;--sh:rgba(26,18,8,0.15);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--ink);font-family:'Crimson Text',Georgia,serif;font-size:16px;min-height:100vh;color:var(--ink);}
+
+/* ── LOGIN ── */
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--ink);background-image:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(184,134,11,0.03) 10px,rgba(184,134,11,0.03) 20px);}
+.login-box{background:var(--cream);border:1px solid var(--border);box-shadow:0 0 0 4px var(--cream),0 0 0 6px var(--border),0 8px 40px rgba(0,0,0,.5);padding:3rem 2.5rem;width:100%;max-width:400px;text-align:center;}
+.login-title{font-family:'Cinzel Decorative',serif;font-size:1.2rem;color:var(--rust);margin-bottom:.3rem;}
+.login-sub{font-family:'IM Fell English',serif;font-style:italic;color:var(--s);font-size:.9rem;margin-bottom:2rem;}
+.login-rule{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
+.login-error{color:var(--red);font-size:.9rem;margin-top:.8rem;font-style:italic;display:none;}
+
+/* ── FORMS ── */
+.fg{margin-bottom:1.1rem;text-align:left;}
+.fg label{display:block;font-family:'IM Fell English',serif;font-size:.85rem;color:var(--s);letter-spacing:.08em;margin-bottom:.35rem;}
+.fg input,.fg textarea,.fg select{width:100%;padding:.55rem .85rem;background:var(--p);border:1px solid var(--border);color:var(--ink);font-family:'Crimson Text',serif;font-size:1rem;outline:none;transition:border-color .2s,box-shadow .2s;}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(184,134,11,.15);}
+.fg textarea{resize:vertical;}
+.fg-row{display:flex;gap:.8rem;align-items:flex-start;}
+.fg-row .fg{flex:1;margin-bottom:0;}
+.fg-check{display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;}
+.fg-check input[type=checkbox]{width:16px;height:16px;accent-color:var(--rust);}
+.fg-check label{font-family:'IM Fell English',serif;font-size:.9rem;color:var(--s);margin:0;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-block;padding:.6rem 1.6rem;font-family:'IM Fell English',serif;font-size:1rem;letter-spacing:.06em;cursor:pointer;border:none;transition:all .2s;}
+.btn-p{background:var(--rust);color:var(--gl);}  .btn-p:hover{background:var(--il);}
+.btn-s{background:var(--green);color:#d4edda;}   .btn-s:hover{background:#1e4d38;}
+.btn-d{background:var(--red);color:#f8d7da;}     .btn-d:hover{background:#5a1010;}
+.btn-g{background:var(--pd);color:var(--il);border:1px solid var(--border);}  .btn-g:hover{background:var(--p);}
+.btn-sm{padding:.28rem .7rem;font-size:.82rem;}
+
+/* ── APP LAYOUT ── */
+#app{display:none;min-height:100vh;background:var(--p);}
+.admin-header{background:var(--ink);border-bottom:3px double var(--gold);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;}
+.admin-header-title{font-family:'Cinzel Decorative',serif;font-size:.95rem;color:var(--gl);letter-spacing:.04em;}
+.admin-header-sub{font-family:'IM Fell English',serif;font-style:italic;color:var(--s);font-size:.78rem;}
+.header-right{display:flex;align-items:center;gap:.8rem;}
+.api-stat{font-family:'IM Fell English',serif;font-size:.76rem;padding:.22rem .65rem;border:1px solid;}
+.api-stat.ok{color:#6fcf97;border-color:#6fcf97;} .api-stat.bad{color:#eb5757;border-color:#eb5757;} .api-stat.chk{color:var(--gl);border-color:var(--gold);}
+
+.admin-body{display:flex;min-height:calc(100vh - 56px);}
+
+/* ── SIDEBAR ── */
+.sidebar{width:195px;background:var(--il);border-right:1px solid rgba(184,134,11,.2);flex-shrink:0;padding:1.2rem 0;transition:transform .25s;}
+.sidebar-nav a{display:block;padding:.65rem 1.3rem;color:var(--pd);text-decoration:none;font-family:'IM Fell English',serif;font-size:.92rem;letter-spacing:.06em;border-left:3px solid transparent;transition:all .15s;}
+.sidebar-nav a:hover,.sidebar-nav a.active{color:var(--gl);border-left-color:var(--gold);background:rgba(184,134,11,.09);}
+.sidebar-section{font-size:.62rem;color:var(--s);letter-spacing:.2em;text-transform:uppercase;padding:1.1rem 1.3rem .35rem;font-family:'IM Fell English',serif;}
+
+/* ── CONTENT ── */
+.content-area{flex:1;padding:1.8rem;overflow-y:auto;}
+.page{display:none;} .page.active{display:block;}
+.page-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.6rem;padding-bottom:.9rem;border-bottom:1px solid var(--border);}
+.page-title{font-family:'Cinzel Decorative',serif;font-size:1.25rem;color:var(--rust);}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;gap:.7rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center;}
+.filter-bar input,.filter-bar select{padding:.4rem .7rem;background:var(--cream);border:1px solid var(--border);color:var(--ink);font-family:'Crimson Text',serif;font-size:.9rem;outline:none;}
+.filter-bar input{flex:1;min-width:160px;}
+.bulk-actions{display:none;gap:.5rem;align-items:center;margin-bottom:.8rem;}
+.bulk-actions.visible{display:flex;}
+.bulk-label{font-family:'IM Fell English',serif;font-size:.88rem;color:var(--s);}
+
+/* ── TABLE ── */
+.data-table{width:100%;border-collapse:collapse;background:var(--cream);border:1px solid var(--border);box-shadow:3px 3px 10px var(--sh);}
+.data-table th{background:var(--ink);color:var(--gl);font-family:'IM Fell English',serif;font-size:.83rem;letter-spacing:.1em;padding:.65rem .9rem;text-align:left;font-weight:normal;}
+.data-table th input[type=checkbox]{accent-color:var(--gold);}
+.data-table td{padding:.65rem .9rem;border-bottom:1px solid var(--pd);font-size:.93rem;color:var(--il);vertical-align:middle;}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tr:hover td{background:rgba(184,134,11,.04);}
+.data-table .acts{display:flex;gap:.35rem;}
+.tag-badge{display:inline-block;padding:.12rem .55rem;background:var(--pd);border:1px solid var(--border);font-size:.72rem;color:var(--s);font-family:'IM Fell English',serif;letter-spacing:.06em;}
+.tag-badge.draft{border-color:var(--s);color:var(--if);}
+
+/* ── MODAL ── */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;align-items:center;justify-content:center;padding:1rem;}
+.mo.open{display:flex;}
+.modal{background:var(--cream);border:1px solid var(--border);box-shadow:0 0 0 4px var(--cream),0 0 0 6px var(--border),0 20px 60px rgba(0,0,0,.6);width:100%;max-width:660px;max-height:92vh;overflow-y:auto;}
+.modal-hdr{background:var(--ink);padding:.9rem 1.4rem;display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-family:'Cinzel Decorative',serif;font-size:.95rem;color:var(--gl);}
+.modal-x{background:none;border:none;color:var(--s);font-size:1.4rem;cursor:pointer;transition:color .2s;}
+.modal-x:hover{color:var(--gl);}
+.modal-body{padding:1.6rem;}
+.modal-foot{padding:.9rem 1.6rem;border-top:1px solid var(--border);display:flex;gap:.7rem;justify-content:flex-end;}
+
+/* ── RICH TEXT TOOLBAR ── */
+.editor-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:.8rem;}
+.editor-tab{padding:.4rem 1rem;font-family:'IM Fell English',serif;font-size:.85rem;cursor:pointer;border:none;background:transparent;color:var(--s);border-bottom:2px solid transparent;transition:all .15s;}
+.editor-tab.active{color:var(--rust);border-bottom-color:var(--rust);}
+.md-toolbar{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.5rem;padding:.4rem;background:var(--pd);border:1px solid var(--border);border-bottom:none;}
+.md-btn{padding:.28rem .55rem;font-size:.8rem;background:var(--cream);border:1px solid var(--border);cursor:pointer;color:var(--il);font-family:'Crimson Text',serif;transition:all .15s;line-height:1.2;}
+.md-btn:hover{background:var(--p);border-color:var(--gold);}
+.preview-pane{display:none;padding:1rem 1.2rem;background:var(--cream);border:1px solid var(--border);min-height:220px;font-family:'Crimson Text',serif;font-size:1.05rem;line-height:1.8;color:var(--il);}
+.preview-pane.visible{display:block;}
+.preview-pane h1,.preview-pane h2,.preview-pane h3{font-family:'IM Fell English',serif;color:var(--rust);margin:.8rem 0 .4rem;}
+.preview-pane p{margin-bottom:1em;}
+.preview-pane blockquote{border-left:3px solid var(--gold);padding:.5rem 1rem;background:var(--p);font-style:italic;margin:1rem 0;}
+.preview-pane hr{border:none;border-top:1px solid var(--border);margin:1.2rem 0;}
+
+/* ── DASHBOARD STATS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:1.1rem;margin-bottom:2rem;}
+.stat-card{background:var(--cream);border:1px solid var(--border);box-shadow:3px 3px 8px var(--sh);padding:1.3rem 1.1rem;text-align:center;}
+.stat-icon{font-size:1.8rem;margin-bottom:.4rem;}
+.stat-num{font-family:'Cinzel Decorative',serif;font-size:1.8rem;color:var(--rust);line-height:1;margin-bottom:.25rem;}
+.stat-lbl{font-family:'IM Fell English',serif;font-size:.78rem;color:var(--s);letter-spacing:.1em;}
+
+/* ── SETUP BOX ── */
+.setup-box{background:var(--cream);border:1px solid var(--border);border-left:4px solid var(--gold);padding:1.4rem 1.7rem;margin-bottom:1.8rem;box-shadow:3px 3px 10px var(--sh);}
+.setup-box h3{font-family:'Cinzel Decorative',serif;font-size:.95rem;color:var(--rust);margin-bottom:.75rem;}
+.setup-box ol{padding-left:1.3rem;color:var(--il);line-height:2.2;font-size:.95rem;}
+.setup-box p{color:var(--il);line-height:1.7;font-size:.95rem;}
+.setup-box code{background:var(--pd);padding:.1rem .4rem;font-size:.82rem;border:1px solid var(--border);word-break:break-all;}
+
+/* ── LOADING ── */
+.loading{text-align:center;padding:2.5rem;font-family:'IM Fell English',serif;font-style:italic;color:var(--s);}
+.spinner{display:inline-block;width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:.7rem;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:1.8rem;right:1.8rem;padding:.75rem 1.4rem;background:var(--ink);color:var(--gl);font-family:'IM Fell English',serif;font-size:.92rem;border:1px solid var(--gold);box-shadow:0 4px 20px rgba(0,0,0,.4);z-index:300;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none;}
+#toast.show{opacity:1;transform:translateY(0);}
+
+/* ── MOBILE ── */
+.sidebar-toggle{display:none;background:none;border:none;color:var(--gl);font-size:1.3rem;cursor:pointer;padding:.2rem .5rem;}
+@media(max-width:640px){
+  .sidebar{position:fixed;left:0;top:56px;bottom:0;z-index:50;transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .sidebar-toggle{display:block;}
+  .admin-body{flex-direction:column;}
+  .content-area{padding:1rem;}
+  .filter-bar{flex-direction:column;}
+  .filter-bar input,.filter-bar select{width:100%;}
+}
+</style>
 </head>
 <body>
-  <script src="https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js"></script>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <h1 class="login-title">My Literary Space</h1>
+    <p class="login-sub">Admin Panel — Authorised Entry Only</p>
+    <hr class="login-rule"/>
+    <div class="fg">
+      <label>Password</label>
+      <input type="password" id="pw-input" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="btn btn-p" style="width:100%" onclick="doLogin()">Enter the Archive</button>
+    <p class="login-error" id="login-err">✗ Incorrect password. Try again.</p>
+    <p style="margin-top:1rem;font-size:.78rem;color:var(--s);font-style:italic;">Default: <code style="background:var(--pd);padding:.1rem .35rem;">literary2024</code></p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header class="admin-header">
+    <div style="display:flex;align-items:center;gap:.8rem;">
+      <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+      <div>
+        <div class="admin-header-title">📖 My Literary Space</div>
+        <div class="admin-header-sub">Administration Panel</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="api-stat chk" id="api-stat">● Checking…</span>
+      <button class="btn btn-g btn-sm" onclick="doLogout()">Sign Out</button>
+    </div>
+  </header>
+
+  <div class="admin-body">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">Content</div>
+      <div class="sidebar-nav">
+        <a href="#" class="active" onclick="nav('dashboard',this);return false;">⊞ Dashboard</a>
+        <a href="#" onclick="nav('poems',this);return false;">🪶 Poems</a>
+        <a href="#" onclick="nav('stories',this);return false;">📜 Stories</a>
+        <a href="#" onclick="nav('books',this);return false;">📚 Books</a>
+        <div class="sidebar-section">System</div>
+        <a href="#" onclick="nav('settings',this);return false;">⚙ API Setup</a>
+        <a href="/" target="_blank">↗ View Blog</a>
+      </div>
+    </nav>
+
+    <main class="content-area">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-hdr"><h2 class="page-title">Dashboard</h2>
+          <button class="btn btn-g btn-sm" onclick="clearAllCache();toast('Cache cleared.');loadDash();">↺ Refresh</button>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon">🪶</div><div class="stat-num" id="cnt-poems">—</div><div class="stat-lbl">Poems</div></div>
+          <div class="stat-card"><div class="stat-icon">📜</div><div class="stat-num" id="cnt-stories">—</div><div class="stat-lbl">Stories</div></div>
+          <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-num" id="cnt-books">—</div><div class="stat-lbl">Books</div></div>
+          <div class="stat-card"><div class="stat-icon">✍️</div><div class="stat-num" id="cnt-total">—</div><div class="stat-lbl">Total</div></div>
+        </div>
+        <div class="setup-box" id="dash-note">
+          <h3>Welcome!</h3>
+          <p>Connect Google Sheets in <strong>⚙ API Setup</strong> to start managing your content.</p>
+        </div>
+      </div>
+
+      <!-- POEMS -->
+      <div class="page" id="page-poems">
+        <div class="page-hdr"><h2 class="page-title">🪶 Poems</h2>
+          <button class="btn btn-s" onclick="openModal('poem')">+ New Poem</button>
+        </div>
+        <div class="filter-bar">
+          <input type="text" id="q-poem" placeholder="Filter by title…" oninput="applyFilters('poem')"/>
+          <select id="st-poem" onchange="applyFilters('poem')"><option value="">All Status</option><option value="published">Published</option><option value="draft">Draft</option></select>
+          <select id="so-poem" onchange="applyFilters('poem')"><option value="date-desc">Newest First</option><option value="date-asc">Oldest First</option><option value="title-asc">A → Z</option><option value="title-desc">Z → A</option></select>
+        </div>
+        <div class="bulk-actions" id="bulk-poem">
+          <span class="bulk-label" id="bulk-poem-label">0 selected</span>
+          <button class="btn btn-d btn-sm" onclick="bulkDelete('poem')">Delete Selected</button>
+          <button class="btn btn-g btn-sm" onclick="clearSel('poem')">Clear</button>
+        </div>
+        <div id="wrap-poem"><div class="loading"><div class="spinner"></div><br/>Loading…</div></div>
+      </div>
+
+      <!-- STORIES -->
+      <div class="page" id="page-stories">
+        <div class="page-hdr"><h2 class="page-title">📜 Stories</h2>
+          <button class="btn btn-s" onclick="openModal('story')">+ New Story</button>
+        </div>
+        <div class="filter-bar">
+          <input type="text" id="q-story" placeholder="Filter by title…" oninput="applyFilters('story')"/>
+          <select id="st-story" onchange="applyFilters('story')"><option value="">All Status</option><option value="published">Published</option><option value="draft">Draft</option></select>
+          <select id="so-story" onchange="applyFilters('story')"><option value="date-desc">Newest First</option><option value="date-asc">Oldest First</option><option value="title-asc">A → Z</option><option value="title-desc">Z → A</option></select>
+        </div>
+        <div class="bulk-actions" id="bulk-story">
+          <span class="bulk-label" id="bulk-story-label">0 selected</span>
+          <button class="btn btn-d btn-sm" onclick="bulkDelete('story')">Delete Selected</button>
+          <button class="btn btn-g btn-sm" onclick="clearSel('story')">Clear</button>
+        </div>
+        <div id="wrap-story"><div class="loading"><div class="spinner"></div><br/>Loading…</div></div>
+      </div>
+
+      <!-- BOOKS -->
+      <div class="page" id="page-books">
+        <div class="page-hdr"><h2 class="page-title">📚 Books</h2>
+          <button class="btn btn-s" onclick="openModal('book')">+ New Book</button>
+        </div>
+        <div class="filter-bar">
+          <input type="text" id="q-book" placeholder="Filter by title…" oninput="applyFilters('book')"/>
+          <select id="st-book" onchange="applyFilters('book')"><option value="">All Status</option><option value="published">Published</option><option value="draft">Draft</option></select>
+          <select id="so-book" onchange="applyFilters('book')"><option value="date-desc">Newest First</option><option value="date-asc">Oldest First</option><option value="title-asc">A → Z</option><option value="title-desc">Z → A</option></select>
+        </div>
+        <div class="bulk-actions" id="bulk-book">
+          <span class="bulk-label" id="bulk-book-label">0 selected</span>
+          <button class="btn btn-d btn-sm" onclick="bulkDelete('book')">Delete Selected</button>
+          <button class="btn btn-g btn-sm" onclick="clearSel('book')">Clear</button>
+        </div>
+        <div id="wrap-book"><div class="loading"><div class="spinner"></div><br/>Loading…</div></div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="page" id="page-settings">
+        <div class="page-hdr"><h2 class="page-title">⚙ API Setup</h2></div>
+
+        <div class="setup-box">
+          <h3>Step 1 — Create Google Sheet</h3>
+          <ol>
+            <li>Go to <a href="https://sheets.google.com" target="_blank" style="color:var(--rust)">sheets.google.com</a> → New spreadsheet</li>
+            <li>Name it: <code>Literary Blog Database</code></li>
+            <li>Create 3 tabs: <code>Poems</code> · <code>Stories</code> · <code>Books</code></li>
+            <li>Row 1 headers in each tab:<br/><code>id | title | date | content | excerpt | author | genre | status | image | featured</code></li>
+          </ol>
+        </div>
+
+        <div class="setup-box">
+          <h3>Step 2 — Deploy Apps Script</h3>
+          <ol>
+            <li>In Google Sheet → <strong>Extensions → Apps Script</strong></li>
+            <li>Paste the full contents of <code>admin/google-apps-script.js</code></li>
+            <li>Replace <code>YOUR_SPREADSHEET_ID</code> with your Sheet ID (from the URL)</li>
+            <li>Click <strong>Deploy → New deployment → Web app</strong></li>
+            <li>Execute as: <strong>Me</strong> · Access: <strong>Anyone</strong> → Deploy</li>
+            <li>Authorize when prompted, copy the Web App URL</li>
+          </ol>
+        </div>
+
+        <div class="setup-box">
+          <h3>Step 3 — Connect & Test</h3>
+          <div class="fg" style="margin-bottom:.8rem;">
+            <label>Google Apps Script Web App URL</label>
+            <input type="text" id="api-url-inp" placeholder="https://script.google.com/macros/s/…/exec" oninput="saveApiUrl()"/>
+          </div>
+          <div style="display:flex;gap:.7rem;margin-bottom:.8rem;">
+            <button class="btn btn-p" onclick="testConn()">Test Connection</button>
+            <button class="btn btn-s" onclick="seedData()">Seed Sample Data</button>
+          </div>
+          <p id="test-res" style="font-style:italic;color:var(--s);font-size:.9rem;min-height:1.3rem;"></p>
+        </div>
+
+        <div class="setup-box">
+          <h3>Step 4 — Bake API URL into Site</h3>
+          <p style="margin-bottom:.8rem;">After confirming the connection works, paste the same URL into <code>_data/config.json</code> in your project, then rebuild and redeploy. This makes content visible to <strong>all visitors</strong>, not just you.</p>
+          <code style="display:block;padding:.6rem .8rem;line-height:1.8;">{<br/>&nbsp;&nbsp;"apiUrl": "https://script.google.com/macros/s/YOUR_ID/exec",<br/>&nbsp;&nbsp;"siteName": "My Literary Space", …<br/>}</code>
+        </div>
+
+        <div class="setup-box">
+          <h3>Step 5 — Change Password</h3>
+          <p style="margin-bottom:.8rem;font-size:.9rem;">Password is stored as a secure SHA-256 hash in your browser.</p>
+          <div class="fg-row">
+            <div class="fg"><label>New Password</label><input type="password" id="new-pw" placeholder="Enter new password…"/></div>
+            <button class="btn btn-p" onclick="changePw()" style="margin-top:1.55rem;">Save</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- CREATE/EDIT MODAL -->
+<div class="mo" id="mo-edit">
+  <div class="modal">
+    <div class="modal-hdr">
+      <span class="modal-title" id="mo-title">New Entry</span>
+      <button class="modal-x" onclick="closeMo('mo-edit')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="e-id"/>
+      <input type="hidden" id="e-type"/>
+      <div class="fg-row">
+        <div class="fg" style="flex:2"><label>Title *</label><input type="text" id="e-title" placeholder="Enter title…"/></div>
+        <div class="fg"><label>Date</label><input type="date" id="e-date"/></div>
+      </div>
+      <div class="fg" id="f-excerpt"><label>Excerpt</label><textarea id="e-excerpt" style="min-height:60px" placeholder="Brief description…"></textarea></div>
+      <div class="fg-row">
+        <div class="fg" id="f-author"><label>Author</label><input type="text" id="e-author" placeholder="Author name…"/></div>
+        <div class="fg" id="f-genre"><label>Genre</label><input type="text" id="e-genre" placeholder="e.g. Victorian Fiction…"/></div>
+      </div>
+      <div class="fg"><label>Cover Image URL</label><input type="text" id="e-image" placeholder="https://… (optional)"/></div>
+
+      <!-- Rich text editor with tabs -->
+      <div class="fg">
+        <label>Content * <span style="color:var(--s);font-size:.8rem;">(Markdown supported)</span></label>
+        <div class="editor-tabs">
+          <button class="editor-tab active" onclick="switchTab('edit',this)">✏ Edit</button>
+          <button class="editor-tab" onclick="switchTab('preview',this)">👁 Preview</button>
+        </div>
+        <div id="tab-edit">
+          <div class="md-toolbar">
+            <button class="md-btn" title="Bold" onclick="mdWrap('**','**')"><strong>B</strong></button>
+            <button class="md-btn" title="Italic" onclick="mdWrap('*','*')"><em>I</em></button>
+            <button class="md-btn" title="Heading 2" onclick="mdLine('## ')">H2</button>
+            <button class="md-btn" title="Heading 3" onclick="mdLine('### ')">H3</button>
+            <button class="md-btn" title="Blockquote" onclick="mdLine('> ')">❝</button>
+            <button class="md-btn" title="Horizontal Rule" onclick="mdInsert('\n---\n')">—</button>
+            <button class="md-btn" title="Line Break" onclick="mdInsert('\n\n')">↵↵</button>
+          </div>
+          <textarea id="e-content" style="min-height:220px;border-top:none;" placeholder="Write your content here…"></textarea>
+        </div>
+        <div id="tab-preview" class="preview-pane"></div>
+      </div>
+
+      <div class="fg-row">
+        <div class="fg"><label>Status</label><select id="e-status"><option value="published">Published</option><option value="draft">Draft</option></select></div>
+        <div class="fg-check" style="margin-top:1.55rem;">
+          <input type="checkbox" id="e-featured"/>
+          <label for="e-featured">⭐ Mark as Featured</label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-g" onclick="closeMo('mo-edit')">Cancel</button>
+      <button class="btn btn-s" onclick="saveEntry()">💾 Save to Google Sheets</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ════════════════════
+   SHARED INLINE UTILS
+   (admin doesn't load app.js)
+════════════════════ */
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function md(text) {
+  text = String(text||'').replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  return text.split(/\n\n+/).map(function(b){
+    b=b.trim(); if(!b) return '';
+    if(/^### /.test(b)) return '<h3>'+inl(b.replace(/^### /,''))+'</h3>';
+    if(/^## /.test(b))  return '<h2>'+inl(b.replace(/^## /,''))+'</h2>';
+    if(/^# /.test(b))   return '<h1>'+inl(b.replace(/^# /,''))+'</h1>';
+    if(/^---+$/.test(b)) return '<hr/>';
+    if(/^> /.test(b)) return '<blockquote>'+inl(b.split('\n').map(function(l){return l.replace(/^> ?/,'');}).join('\n'))+'</blockquote>';
+    if(/^</.test(b)) return b;
+    return '<p>'+inl(b.replace(/\n/g,'<br/>'))+'</p>';
+  }).join('\n');
+}
+function inl(t){ return String(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/_(.+?)_/g,'<em>$1</em>'); }
+
+function clearAllCache(){ Object.keys(localStorage).filter(function(k){return k.startsWith('lc_');}).forEach(function(k){localStorage.removeItem(k);}); }
+
+/* ════════════════════
+   AUTH (SHA-256)
+════════════════════ */
+var KEY_HASH='literary_pw_hash', KEY_AUTH='literary_auth', DEF_PW='literary2024';
+
+async function hashPw(pw){
+  var buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pw));
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
+
+async function doLogin(){
+  var val=document.getElementById('pw-input').value;
+  var inputHash=await hashPw(val);
+  var stored=localStorage.getItem(KEY_HASH);
+  var match=false;
+  if(!stored){ match=(inputHash===await hashPw(DEF_PW)); }
+  else { match=(inputHash===stored); }
+  if(match){
+    sessionStorage.setItem(KEY_AUTH,'1');
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    init();
+  } else {
+    document.getElementById('login-err').style.display='block';
+    document.getElementById('pw-input').value='';
+  }
+}
+
+function doLogout(){ sessionStorage.removeItem(KEY_AUTH); location.reload(); }
+
+async function changePw(){
+  var np=document.getElementById('new-pw').value.trim();
+  if(!np) return toast('Enter a new password first.');
+  localStorage.setItem(KEY_HASH, await hashPw(np));
+  document.getElementById('new-pw').value='';
+  toast('✦ Password updated securely.');
+}
+
+if(sessionStorage.getItem(KEY_AUTH)==='1'){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  window.addEventListener('DOMContentLoaded',init);
+}
+
+/* ════════════════════
+   API
+════════════════════ */
+function getApiUrl(){ return localStorage.getItem('literary_api')||''; }
+
+function saveApiUrl(){
+  var v=document.getElementById('api-url-inp').value.trim();
+  localStorage.setItem('literary_api',v);
+}
+
+async function callGet(action,params){
+  var url=getApiUrl(); if(!url) throw new Error('No API URL set.');
+  var qs=new URLSearchParams(Object.assign({action:action},params||{}));
+  var r=await fetch(url+'?'+qs); if(!r.ok) throw new Error('HTTP '+r.status);
+  return r.json();
+}
+
+async function callPost(action,data){
+  var url=getApiUrl(); if(!url) throw new Error('No API URL set.');
+  var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({action:action},data))});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  return r.json();
+}
+
+/* ════════════════════
+   INIT
+════════════════════ */
+function init(){
+  var saved=getApiUrl();
+  var inp=document.getElementById('api-url-inp');
+  if(inp) inp.value=saved;
+  checkApi();
+  loadDash();
+}
+
+async function checkApi(){
+  var el=document.getElementById('api-stat');
+  if(!getApiUrl()){ el.textContent='● No API'; el.className='api-stat bad'; return; }
+  el.textContent='● Checking…'; el.className='api-stat chk';
+  try{
+    var r=await callGet('ping');
+    if(r.status==='ok'){ el.textContent='● Connected'; el.className='api-stat ok'; }
+    else throw new Error();
+  } catch { el.textContent='● Disconnected'; el.className='api-stat bad'; }
+}
+
+async function testConn(){
+  var res=document.getElementById('test-res');
+  res.textContent='Testing…';
+  try{
+    var r=await callGet('ping');
+    if(r.status==='ok'){ res.textContent='✓ Connected! Google Sheets is ready.'; res.style.color='var(--green)'; checkApi(); }
+    else throw new Error('Unexpected response');
+  } catch(e){ res.textContent='✗ Failed: '+e.message; res.style.color='var(--red)'; }
+}
+
+/* ════════════════════
+   DASHBOARD
+════════════════════ */
+async function loadDash(){
+  if(!getApiUrl()) return;
+  try{
+    var r=await callGet('counts');
+    document.getElementById('cnt-poems').textContent=r.poems??0;
+    document.getElementById('cnt-stories').textContent=r.stories??0;
+    document.getElementById('cnt-books').textContent=r.books??0;
+    document.getElementById('cnt-total').textContent=(r.poems||0)+(r.stories||0)+(r.books||0);
+    document.getElementById('dash-note').style.display='none';
+  } catch{}
+}
+
+/* ════════════════════
+   NAVIGATION
+════════════════════ */
+function nav(name,el){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.sidebar-nav a').forEach(function(a){a.classList.remove('active');});
+  document.getElementById('page-'+name).classList.add('active');
+  if(el) el.classList.add('active');
+  if(name==='poems')   loadTable('poem');
+  if(name==='stories') loadTable('story');
+  if(name==='books')   loadTable('book');
+  closeSidebar();
+}
+
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
+function closeSidebar(){  document.getElementById('sidebar').classList.remove('open'); }
+
+/* ════════════════════
+   TABLE
+════════════════════ */
+var CFG={
+  poem: {sheet:'Poems',  wrap:'wrap-poem',  label:'Poem'},
+  story:{sheet:'Stories',wrap:'wrap-story', label:'Story'},
+  book: {sheet:'Books',  wrap:'wrap-book',  label:'Book'},
+};
+var tableData={poem:[],story:[],book:[]};
+
+async function loadTable(type){
+  var c=CFG[type], wrap=document.getElementById(c.wrap);
+  if(!getApiUrl()){ wrap.innerHTML='<div class="loading">Go to <strong>⚙ API Setup</strong> first.</div>'; return; }
+  wrap.innerHTML='<div class="loading"><div class="spinner"></div><br/>Loading from Google Sheets…</div>';
+  try{
+    var r=await callGet('list',{sheet:c.sheet});
+    tableData[type]=r.data||[];
+    applyFilters(type);
+  } catch(e){ wrap.innerHTML='<div class="loading">Error: '+esc(e.message)+'</div>'; }
+}
+
+function applyFilters(type){
+  var c=CFG[type];
+  var q  =document.getElementById('q-'+type)?.value.toLowerCase()||'';
+  var st =document.getElementById('st-'+type)?.value||'';
+  var so =document.getElementById('so-'+type)?.value||'date-desc';
+  var rows=[].concat(tableData[type]);
+  if(q)  rows=rows.filter(function(r){ return (r.title||'').toLowerCase().includes(q); });
+  if(st) rows=rows.filter(function(r){ return r.status===st; });
+  rows.sort(function(a,b){
+    if(so==='date-desc') return new Date(b.date)-new Date(a.date);
+    if(so==='date-asc')  return new Date(a.date)-new Date(b.date);
+    if(so==='title-asc') return (a.title||'').localeCompare(b.title||'');
+    return (b.title||'').localeCompare(a.title||'');
+  });
+  renderTable(type,rows);
+}
+
+function renderTable(type,rows){
+  var c=CFG[type], wrap=document.getElementById(c.wrap);
+  if(!rows.length){ wrap.innerHTML='<div class="loading">No '+c.label.toLowerCase()+'s found.</div>'; return; }
+  var showAuthor=type==='book';
+  wrap.innerHTML='<table class="data-table"><thead><tr>'+
+    '<th><input type="checkbox" onchange="toggleAll(\''+type+'\',this)"></th>'+
+    '<th>Title</th><th>Date</th>'+
+    (showAuthor?'<th>Author</th>':'')+
+    '<th>Status</th><th>Featured</th><th>Actions</th>'+
+  '</tr></thead><tbody>'+
+  rows.map(function(row){
+    var isFeat=row.featured==='true'||row.featured===true;
+    return '<tr>'+
+      '<td><input type="checkbox" class="row-check" data-id="'+esc(row.id)+'" data-type="'+type+'" onchange="updateBulk(\''+type+'\')"></td>'+
+      '<td><strong>'+esc(row.title)+'</strong></td>'+
+      '<td>'+esc(row.date)+'</td>'+
+      (showAuthor?'<td>'+esc(row.author||'')+'</td>':'')+
+      '<td><span class="tag-badge'+(row.status==='draft'?' draft':'')+'">'+esc(row.status||'published')+'</span></td>'+
+      '<td>'+(isFeat?'⭐':'')+'</td>'+
+      '<td class="acts">'+
+        '<button class="btn btn-g btn-sm" onclick="editEntry(\''+type+'\',\''+esc(row.id)+'\')">Edit</button>'+
+        '<button class="btn btn-d btn-sm" onclick="deleteEntry(\''+type+'\',\''+esc(row.id)+'\',\''+esc(row.title)+'\')">Del</button>'+
+      '</td>'+
+    '</tr>';
+  }).join('')+
+  '</tbody></table>';
+}
+
+/* ── Bulk select ── */
+function toggleAll(type,cb){
+  document.querySelectorAll('#wrap-'+type+' .row-check').forEach(function(c){ c.checked=cb.checked; });
+  updateBulk(type);
+}
+function updateBulk(type){
+  var sel=document.querySelectorAll('#wrap-'+type+' .row-check:checked').length;
+  document.getElementById('bulk-'+type+'-label').textContent=sel+' selected';
+  document.getElementById('bulk-'+type).classList.toggle('visible', sel>0);
+}
+function clearSel(type){
+  document.querySelectorAll('#wrap-'+type+' .row-check').forEach(function(c){ c.checked=false; });
+  updateBulk(type);
+}
+async function bulkDelete(type){
+  var checked=Array.from(document.querySelectorAll('#wrap-'+type+' .row-check:checked'));
+  if(!checked.length) return;
+  if(!confirm('Delete '+checked.length+' selected item(s)? This cannot be undone.')) return;
+  var c=CFG[type];
+  var ids=checked.map(function(cb){ return cb.dataset.id; });
+  toast('Deleting '+ids.length+' items…');
+  try{
+    for(var i=0;i<ids.length;i++){ await callPost('delete',{sheet:c.sheet,id:ids[i]}); }
+    toast('✦ Deleted '+ids.length+' items.');
+    loadTable(type); loadDash();
+  } catch(e){ toast('Error: '+e.message); }
+}
+
+/* ════════════════════
+   MODAL
+════════════════════ */
+function openModal(type,data){
+  var c=CFG[type];
+  document.getElementById('e-type').value=type;
+  document.getElementById('e-id').value=data?data.id:'';
+  document.getElementById('mo-title').textContent=(data?'Edit ':'New ')+c.label;
+  document.getElementById('e-title').value=data?.title||'';
+  document.getElementById('e-date').value=data?.date||new Date().toISOString().slice(0,10);
+  document.getElementById('e-content').value=data?.content||'';
+  document.getElementById('e-excerpt').value=data?.excerpt||'';
+  document.getElementById('e-author').value=data?.author||'';
+  document.getElementById('e-genre').value=data?.genre||'';
+  document.getElementById('e-image').value=data?.image||'';
+  document.getElementById('e-status').value=data?.status||'published';
+  document.getElementById('e-featured').checked=(data?.featured==='true'||data?.featured===true);
+  document.getElementById('f-author').style.display=type==='book'?'block':'none';
+  document.getElementById('f-genre').style.display=type==='book'?'block':'none';
+  document.getElementById('f-excerpt').style.display=type!=='poem'?'block':'none';
+  /* Reset to edit tab */
+  switchTab('edit', document.querySelector('.editor-tab'));
+  document.getElementById('mo-edit').classList.add('open');
+  setTimeout(function(){ document.getElementById('e-title').focus(); }, 80);
+}
+
+function closeMo(id){ document.getElementById(id).classList.remove('open'); }
+document.getElementById('mo-edit').addEventListener('click',function(e){ if(e.target===this) closeMo('mo-edit'); });
+
+async function editEntry(type,id){
+  var c=CFG[type];
+  try{ var r=await callGet('get',{sheet:c.sheet,id:id}); openModal(type,r.data); }
+  catch(e){ toast('Error: '+e.message); }
+}
+
+async function saveEntry(){
+  var type=document.getElementById('e-type').value;
+  var id=document.getElementById('e-id').value;
+  var title=document.getElementById('e-title').value.trim();
+  var content=document.getElementById('e-content').value.trim();
+  if(!title)   return toast('Please enter a title.');
+  if(!content) return toast('Please enter content.');
+  var c=CFG[type];
+  var payload={
+    sheet:c.sheet,
+    id:id||(Date.now().toString(36)+Math.random().toString(36).slice(2)),
+    title:title,
+    date:document.getElementById('e-date').value,
+    content:content,
+    excerpt:document.getElementById('e-excerpt').value.trim(),
+    author:document.getElementById('e-author').value.trim(),
+    genre:document.getElementById('e-genre').value.trim(),
+    status:document.getElementById('e-status').value,
+    image:document.getElementById('e-image').value.trim(),
+    featured:document.getElementById('e-featured').checked?'true':'false',
+  };
+  try{
+    toast('Saving…');
+    await callPost(id?'update':'create',payload);
+    closeMo('mo-edit');
+    toast('✦ '+c.label+' saved!');
+    clearAllCache();
+    loadTable(type); loadDash();
+  } catch(e){ toast('Error: '+e.message); }
+}
+
+async function deleteEntry(type,id,title){
+  if(!confirm('Delete "'+title+'"? Cannot be undone.')) return;
+  var c=CFG[type];
+  try{
+    await callPost('delete',{sheet:c.sheet,id:id});
+    toast('✦ "'+title+'" deleted.');
+    clearAllCache();
+    loadTable(type); loadDash();
+  } catch(e){ toast('Error: '+e.message); }
+}
+
+/* ════════════════════
+   RICH TEXT TOOLBAR
+════════════════════ */
+function switchTab(tab, clickedBtn){
+  if(tab==='preview'){
+    document.getElementById('tab-preview').style.display='none';
+    document.getElementById('tab-preview').className='preview-pane visible';
+    document.getElementById('tab-preview').style.display='block';
+    document.getElementById('tab-edit').style.display='none';
+    document.getElementById('tab-preview').innerHTML=md(document.getElementById('e-content').value)||'<em style="color:var(--if)">Nothing to preview yet.</em>';
+  } else {
+    document.getElementById('tab-edit').style.display='block';
+    document.getElementById('tab-preview').style.display='none';
+    document.getElementById('tab-preview').className='preview-pane';
+  }
+  document.querySelectorAll('.editor-tab').forEach(function(b){ b.classList.remove('active'); });
+  if(clickedBtn) clickedBtn.classList.add('active');
+  else document.querySelectorAll('.editor-tab')[tab==='edit'?0:1].classList.add('active');
+}
+
+function mdWrap(before,after){
+  var ta=document.getElementById('e-content');
+  var s=ta.selectionStart, e=ta.selectionEnd;
+  var sel=ta.value.substring(s,e);
+  ta.value=ta.value.substring(0,s)+before+(sel||'')+after+ta.value.substring(e);
+  ta.focus();
+  ta.setSelectionRange(s+before.length, s+before.length+(sel.length||0));
+}
+
+function mdLine(prefix){
+  var ta=document.getElementById('e-content');
+  var s=ta.selectionStart;
+  var ls=ta.value.lastIndexOf('\n',s-1)+1;
+  ta.value=ta.value.substring(0,ls)+prefix+ta.value.substring(ls);
+  ta.focus();
+  ta.setSelectionRange(s+prefix.length,s+prefix.length);
+}
+
+function mdInsert(text){
+  var ta=document.getElementById('e-content');
+  var s=ta.selectionStart;
+  ta.value=ta.value.substring(0,s)+text+ta.value.substring(s);
+  ta.focus();
+  ta.setSelectionRange(s+text.length,s+text.length);
+}
+
+/* ════════════════════
+   SEED DATA
+════════════════════ */
+async function seedData(){
+  if(!getApiUrl()) return toast('Connect API first.');
+  if(!confirm('Add sample poems, stories & books to your Sheet?')) return;
+  var samples=[
+    {type:'poem', title:'The Candle and the Dark', date:'2024-03-10', content:'I lit a candle in the dark,\na small and trembling thing,\nthat threw its shadow on the wall\nand made the silence sing.\n\nThe flame bent low to every breath,\nyet stubbornly held fast,\nas if it knew that all great lights\nmust struggle ere they last.', status:'published', featured:'false'},
+    {type:'poem', title:'Old Letters', date:'2024-05-22', content:'I found your letters in a box,\ntied neatly, brown with age,\nthe ink now pale as winter light\non every yellowed page.', status:'published', featured:'false'},
+    {type:'story', title:'The Last Cartographer', date:'2024-02-18', excerpt:'In a city where all the maps had been burned, one old man still remembered the shape of the streets.', content:'In a city where all the maps had been burned, one old man still remembered the shape of the streets.\n\nHis name was Aldric, and he had spent forty years walking every lane of Vorheim before the Decree of Forgetting came.', status:'published', featured:'true'},
+    {type:'book', title:'Middlemarch', date:'2024-01-30', author:'George Eliot', genre:'Victorian Fiction', excerpt:'A novel so vast and so human it resists any summary.', content:'There are novels you read, and there are novels you inhabit. **Middlemarch** belongs firmly to the second category.\n\n## The Story\n\nThe novel interweaves several plots, chief among them the story of Dorothea Brooke.', status:'published', featured:'false'},
+  ];
+  toast('Seeding…');
+  for(var i=0;i<samples.length;i++){
+    var s=samples[i];
+    await callPost('create',Object.assign({sheet:CFG[s.type].sheet,id:Date.now().toString(36)+Math.random().toString(36).slice(2)},s));
+  }
+  toast('✦ Sample data added!');
+  clearAllCache();
+  loadDash();
+}
+
+/* ════════════════════
+   TOAST
+════════════════════ */
+var _tt;
+function toast(msg){
+  var el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(_tt); _tt=setTimeout(function(){ el.classList.remove('show'); },3200);
+}
+</script>
 </body>
 </html>

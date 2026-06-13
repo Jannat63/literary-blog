@@ -1,0 +1,129 @@
+---
+layout: layout.njk
+title: Post
+permalink: /post/
+---
+
+<div id="post-loading" class="loading-state">
+  <div class="spinner-small"></div>Retrieving from the archive…
+</div>
+<div id="post-error" style="display:none">
+  <p class="empty-state">
+    This page is opened by clicking a title in the archive.<br/>
+    <a href="/" style="color:var(--rust);font-style:normal;">Return to the Home Page →</a>
+  </p>
+</div>
+<div id="post-body" style="display:none"></div>
+
+<script>
+(function(){
+  var loading = document.getElementById('post-loading');
+  var errDiv  = document.getElementById('post-error');
+  var body    = document.getElementById('post-body');
+
+  var id     = sessionStorage.getItem('post_id');
+  var sheet  = sessionStorage.getItem('post_sheet');
+  var apiUrl = getApiUrl();
+
+  if (!id || !sheet || !apiUrl) {
+    loading.style.display = 'none';
+    errDiv.style.display  = 'block';
+    return;
+  }
+
+  /* Check cache first */
+  var cacheKey = 'post_'+sheet+'_'+id;
+  var cached   = getCached(cacheKey);
+  if (cached) { render(cached, sheet); return; }
+
+  fetch(apiUrl+'?action=get&sheet='+encodeURIComponent(sheet)+'&id='+encodeURIComponent(id))
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      if (j.status !== 'ok' || !j.data) throw new Error('Not found');
+      setCached(cacheKey, j.data);
+      render(j.data, sheet);
+    })
+    .catch(function(e){
+      loading.style.display = 'none';
+      errDiv.innerHTML = '<p class="empty-state">Could not load this post: '+esc(e.message)+'<br/>'+
+        '<a href="/" style="color:var(--rust);font-style:normal;">Return home →</a></p>';
+      errDiv.style.display = 'block';
+    });
+
+  function render(post, sheet) {
+    var isPoem  = sheet === 'Poems';
+    var isStory = sheet === 'Stories';
+    var isBook  = sheet === 'Books';
+
+    var typeLabel = isPoem ? '✦ Poem ✦' : isStory ? '✦ Short Story ✦' : '✦ Book Review ✦';
+    var backUrl   = isPoem ? '/poems/'  : isStory ? '/stories/'       : '/books/';
+    var backLabel = isPoem ? '← Poems' : isStory ? '← Stories'       : '← Books';
+
+    document.title = esc(post.title) + ' — My Literary Space';
+
+    /* Meta */
+    var metaParts = [];
+    if (post.date)   metaParts.push(esc(post.date));
+    if (post.author) metaParts.push(esc(post.author));
+    if (post.genre)  metaParts.push(esc(post.genre));
+    if (!isPoem && post.content) metaParts.push(readingTime(post.content));
+    var metaHtml = '<div class="post-meta">'+metaParts.map(function(p){ return '<span>'+p+'</span>'; }).join('')+'</div>';
+
+    /* Cover image */
+    var imgHtml = '';
+    if (post.image && post.image.length > 5) {
+      imgHtml = '<div class="post-cover"><img src="'+esc(post.image)+'" alt="'+esc(post.title)+'" /></div>';
+    }
+
+    /* Content */
+    var contentHtml = '';
+    if (isPoem) {
+      var stanzas = post.content.split(/\n{2,}/);
+      contentHtml = '<div class="poem-content">'+
+        stanzas.map(function(s){
+          return '<p>'+s.split('\n').map(function(l){ return esc(l); }).join('<br/>')+'</p>';
+        }).join('')+
+      '</div>';
+    } else {
+      contentHtml = '<div class="post-content drop-cap">'+md(post.content)+'</div>';
+    }
+
+    /* Share buttons */
+    var pageUrl  = encodeURIComponent(window.location.href);
+    var pageTtle = encodeURIComponent(post.title);
+    var shareHtml =
+      '<div class="share-buttons">'+
+        '<span class="share-label">Share:</span>'+
+        '<button class="share-btn" onclick="copyLink()" id="copy-btn" title="Copy link">🔗 Copy Link</button>'+
+        '<a class="share-btn" href="https://wa.me/?text='+pageTtle+'%20'+pageUrl+'" target="_blank" rel="noopener" title="Share on WhatsApp">💬 WhatsApp</a>'+
+        '<a class="share-btn" href="https://twitter.com/intent/tweet?text='+pageTtle+'&url='+pageUrl+'" target="_blank" rel="noopener" title="Share on Twitter">🐦 Twitter</a>'+
+      '</div>';
+
+    body.innerHTML =
+      '<article>'+
+        '<header class="post-header">'+
+          '<span class="post-type-label">'+typeLabel+'</span>'+
+          '<h1 class="post-title">'+esc(post.title)+'</h1>'+
+          metaHtml+
+        '</header>'+
+        imgHtml+
+        contentHtml+
+        shareHtml+
+        '<nav class="post-nav">'+
+          '<a href="'+backUrl+'">'+backLabel+'</a>'+
+          '<a href="/">Home</a>'+
+        '</nav>'+
+      '</article>';
+
+    loading.style.display = 'none';
+    body.style.display    = 'block';
+  }
+})();
+
+function copyLink() {
+  navigator.clipboard.writeText(window.location.href).then(function(){
+    var btn = document.getElementById('copy-btn');
+    if (btn) { btn.textContent = '✓ Copied!'; setTimeout(function(){ btn.textContent = '🔗 Copy Link'; }, 2000); }
+  });
+}
+</script>

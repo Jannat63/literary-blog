@@ -9,3 +9,13 @@
   from = "/admin"
   to = "/admin/index.html"
   status = 200
+
+[[redirects]]
+  from = "/post"
+  to = "/post/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/search"
+  to = "/search/index.html"
+  status = 200

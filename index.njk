@@ -1,30 +1,127 @@
 ---
 layout: layout.njk
 title: Home
-description: A personal literary space for poems, short stories and books.
+description: A personal literary space for poems, stories and books.
 ---
 
 <div class="hero-quote reveal">
-  <p>
-    "A reader lives a thousand lives before he dies. The man who never reads lives only one."
-  </p>
+  <p>"A reader lives a thousand lives before he dies. The man who never reads lives only one."</p>
   <cite>— George R.R. Martin</cite>
 </div>
+
+<!-- Featured post (shown only when a post is marked featured in Sheets) -->
+<div id="featured-wrap"></div>
 
 <h2 class="section-heading reveal">The Collection</h2>
 <div class="section-rule reveal"><span>⸻</span></div>
 
 <div class="home-sections">
-  {% include "sections/latest-poems.njk" %}
-  {% include "sections/latest-stories.njk" %}
-  {% include "sections/latest-books.njk" %}
+  <div class="home-section-block reveal" id="block-poems">
+    <span class="block-icon">🪶</span>
+    <h3 class="block-title">Latest Poems</h3>
+    <div class="block-inner"><div class="block-loading">Loading…</div></div>
+  </div>
+  <div class="home-section-block reveal" id="block-stories">
+    <span class="block-icon">📜</span>
+    <h3 class="block-title">Latest Stories</h3>
+    <div class="block-inner"><div class="block-loading">Loading…</div></div>
+  </div>
+  <div class="home-section-block reveal" id="block-books">
+    <span class="block-icon">📚</span>
+    <h3 class="block-title">Latest Books</h3>
+    <div class="block-inner"><div class="block-loading">Loading…</div></div>
+  </div>
 </div>
 
-<div class="text-center reveal" style="margin-top:3rem;padding:2rem;border-top:1px solid var(--border);">
+<div class="text-center reveal" style="margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border);">
   <p style="font-family:'IM Fell English',serif;font-style:italic;color:var(--ink-faded);font-size:1.05rem;">
-    "Words are, in my not-so-humble opinion, our most inexhaustible source of magic."
+    "Words are our most inexhaustible source of magic."
   </p>
-  <p style="font-size:0.85rem;color:var(--sepia);margin-top:0.5rem;font-family:'IM Fell English SC',serif;letter-spacing:0.1em;">
-    — Albus Dumbledore
-  </p>
+  <p style="font-size:0.82rem;color:var(--sepia);margin-top:0.4rem;font-family:'IM Fell English SC',serif;letter-spacing:0.1em;">— Albus Dumbledore</p>
 </div>
+
+<script>
+(function(){
+  var apiUrl = getApiUrl();
+
+  var sections = [
+    { id:'block-poems',   sheet:'Poems',   url:'/poems/',   label:'Browse all poems'   },
+    { id:'block-stories', sheet:'Stories', url:'/stories/', label:'Browse all stories' },
+    { id:'block-books',   sheet:'Books',   url:'/books/',   label:'Browse all books'   }
+  ];
+
+  if (!apiUrl) {
+    sections.forEach(function(s){
+      var el = document.querySelector('#'+s.id+' .block-inner');
+      if (el) el.innerHTML = '<p class="block-loading">No database connected.</p><a href="'+s.url+'" class="block-more">'+s.label+' →</a>';
+    });
+    return;
+  }
+
+  /* Load all sections + featured in parallel */
+  sections.forEach(loadBlock);
+  loadFeatured();
+
+  function loadBlock(sec) {
+    var inner = document.querySelector('#'+sec.id+' .block-inner');
+    var cacheKey = 'home_'+sec.sheet;
+    var cached = getCached(cacheKey);
+
+    function render(rows) {
+      if (!rows || !rows.length) {
+        inner.innerHTML = '<p class="block-loading">Nothing here yet.</p><a href="'+sec.url+'" class="block-more">'+sec.label+' →</a>';
+        return;
+      }
+      var items = rows.filter(function(p){ return p.status!=='draft'; }).reverse().slice(0,3);
+      inner.innerHTML = '<ul class="block-list">'+
+        items.map(function(p){
+          return '<li><a href="#" data-post-id="'+esc(p.id)+'" data-post-sheet="'+sec.sheet+'">'+esc(p.title)+'</a></li>';
+        }).join('') +
+        '</ul><a href="'+sec.url+'" class="block-more">'+sec.label+' →</a>';
+      attachPostLinks(inner);
+    }
+
+    if (cached) { render(cached); return; }
+
+    fetch(apiUrl+'?action=list&sheet='+sec.sheet)
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        var data = j.data || [];
+        setCached(cacheKey, data);
+        render(data);
+      })
+      .catch(function(){ inner.innerHTML='<p class="block-loading">Could not load.</p>'; });
+  }
+
+  function loadFeatured() {
+    var wrap = document.getElementById('featured-wrap');
+    /* Check each sheet for a featured post */
+    var sheets = ['Poems','Stories','Books'];
+    var promises = sheets.map(function(sheet){
+      var cached = getCached('home_'+sheet);
+      if (cached) return Promise.resolve({ data: cached });
+      return fetch(apiUrl+'?action=list&sheet='+sheet).then(function(r){ return r.json(); });
+    });
+
+    Promise.all(promises).then(function(results){
+      var featured = null;
+      var featuredSheet = null;
+      results.forEach(function(r, i){
+        if (featured) return;
+        var rows = r.data || [];
+        var f = rows.find(function(p){ return p.featured==='true'||p.featured===true; });
+        if (f) { featured = f; featuredSheet = sheets[i]; }
+      });
+      if (!featured) return;
+      wrap.innerHTML =
+        '<div class="featured-post reveal">'+
+          '<span class="featured-label">✦ Featured ✦</span>'+
+          '<h2 class="featured-title"><a href="#" data-post-id="'+esc(featured.id)+'" data-post-sheet="'+featuredSheet+'">'+esc(featured.title)+'</a></h2>'+
+          (featured.excerpt ? '<p class="featured-excerpt">'+esc(featured.excerpt)+'</p>' : '')+
+          '<span class="featured-type">'+featuredSheet.replace(/s$/,'')+'</span>'+
+        '</div>';
+      attachPostLinks(wrap);
+    }).catch(function(){});
+  }
+})();
+</script>
